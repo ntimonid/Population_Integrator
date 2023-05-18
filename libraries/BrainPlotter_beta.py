@@ -33,7 +33,8 @@ def json_to_flat(cur_slice, atlas, template = None, parcelation = 'allen', outdi
     w = int(np.linalg.norm(u)) + 1 # get the 2-norm of vector u, which would be the x coord
     h = int(np.linalg.norm(v)) + 1 # get the 2-norm of vector v (euclidean distance), the y coord
 
-    image = PIL.Image.new("RGB",(w,h))
+    # image = PIL.Image.new("RGB",(w,h))
+    image = Image.new("RGB",(w,h))
 
     if parcelation == 'template':
         for y in range(h): # loop through the norm of u
@@ -48,6 +49,7 @@ def json_to_flat(cur_slice, atlas, template = None, parcelation = 'allen', outdi
                 i,j,k = o + u*x/w + v*y/h # get the coordinates for the plane
                 if 0 <= i < 1140 and 0 <= j < 1320 and 0 <= k < 800: # if within the confines of the array
                     image.putpixel((x,y),palette[atlas[1319-int(j)][799-int(k)][1139-int(i)]]) # get the rgb for an id
+
     save_name = slice_name.split('.')[0]
     image.save(f"{outdir}/{save_name}.png","PNG")
 #     IPython.display.display(image) # plot it!
