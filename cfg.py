@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from PIL import Image, ImageOps
+import PIL.Image
 from lxml import etree
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 from collections import OrderedDict
