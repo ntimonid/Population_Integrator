@@ -113,7 +113,7 @@ def ProduceSvg(newimg, in_dir, labels, labels_extra = None, savefile = None,
     # Save the figure to an svg file
     if savefile is not None:
         savefile = savefile.split('.')[0] + '.svg'
-        with open(os.path.join('export', savefile),'wt') as fp:
+        with open(savefile,'wt') as fp:
             fp.write(svg)
 
 
