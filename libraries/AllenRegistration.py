@@ -1,22 +1,4 @@
 # %%
-# import os, sys
-# import json, random
-# import io
-# import base64
-# import tempfile
-# from PIL import Image
-# from lxml import etree
-# from copy import deepcopy
-# import nrrd,PIL.Image,re,IPython.display
-
-# current_path = os.getcwd()
-# main_path = os.path.abspath('../') #'/cortexdisk/data2/NestorRembrandtCollab/'
-# # lib_dir = os.path.join(main_path,'Libraries')
-# code_dir = os.path.join(main_path,'Code Repositories')
-# # sys.path.append(lib_dir)
-# # sys.path.append(code_dir)
-# sys.path.append(os.path.join(code_dir,'atlasoverlay'))
-
 
 from cfg import *
 import convertAllenSpace as CAS
@@ -24,6 +6,7 @@ import VisuAlignLib as VAL
 sys.path.append('atlasoverlay')
 import atlasoverlay as ao
 from BrainPlotter_beta import json_to_flat
+# from IPython import get_ipython
 
 
 def setup(experiment_id, dir_data):
@@ -100,6 +83,8 @@ def downsample(imgdir, downdir):
             n -=1
             print('{} images remaining.'.format(n))
 
+    return ds_limit
+
 
 def rotate_imgs(downdir, imgs2rot, angle=180, del_oldfile=False):
     exp = downdir.split('/')[-2]
@@ -140,13 +125,14 @@ def deepslice_analysis(file_path):
     '''
 
     from DeepSlice import DSModel
-    n = expdir.split('/')[-1]
-    output = f'{expdir}/{n}_deepslice'
+    # expdir = file_path
+    n = file_path.split('/')[-1]
+    output = f'{file_path}/{n}_deepslice'
 
     species = 'mouse' #available species are 'mouse' and 'rat'
     Model = DSModel(species)
 
-    Model.predict(f"{expdir}/import", ensemble=True, section_numbers=True)
+    Model.predict(f"{file_path}/import", ensemble=True, section_numbers=True)
 
     # Model.propagate_angles()
     # Model.enforce_index_spacing()
@@ -155,12 +141,12 @@ def deepslice_analysis(file_path):
     """
     from DeepSlice.DeepSlice import DeepSlice
 
-    n = expdir.split('/')[-1]
-    output = f'{expdir}/{n}_deepslice'
+    n = file_path.split('/')[-1]
+    output = f'{file_path}/{n}_deepslice'
 
     Model = DeepSlice()
     Model.Build()
-    Model.predict(expdir) #prop_angles=False
+    Model.predict(file_path) #prop_angles=False
     Model.reorder_indexes(ascending = True)
     Model.even_spacing()
     Model.Save_Results(output)
@@ -288,56 +274,6 @@ def run_pylastik(file_path, classifier_name, ilastik_path, mode):
                 if pixel_map[i,j] == 3: pixel_map[i,j] = (129) # soma is gray
         img = img.save(f'{path_to_images}/{outfile_name}')
 
-# That's the old run_pylastik I keep it because we may need to revert to it
-# def run_pylastik(file_path, file_folder, outfile_name, infile_name, classifier, ilastik_path = './', mode = '"Simple Segmentation"', out_format='png'):
-#     # file_path: path leading up to the nested directory where your images-for-segmentation are
-#     # file_folder: name of the folder where your input images are
-#     # outfile_name: name of the output segmented file:
-#     # infile_name: name of the actual file for segmentation:
-#     # classifier: name of your classifier .ilp file
-#     # ilastik_path: path leading to the directory of the classifier. Default: './'
-#     # mode: segmentation mode: can be either Simple Segmentation or Probabilities. Default: "Simple Segmentation"
-#     # out_format: output file format. Default: "png"
-#
-#     current_path = os.getcwd()
-#     os.chdir(ilastik_path)
-#
-#     # macOS:
-#     if sys.platform == 'OS':
-#         get_ipython().system('./run_ilastik.sh --export_source=$mode                           --project=Ilastik_Classifiers/$classifier                           --output_format=png                           --output_filename_format=$file_path/$file_folder/$outfile_name                            $file_path/$file_folder/$infile_name')
-#
-#     # Windows: counting steps to D: from parent directory could fix hardcoding?
-#     elif sys.platform == 'windows':
-#         get_ipython().system(' .\\ilastik.exe --headless                        --export_source=$mode                        --project=Ilastik_Classifiers/$classifier                        --output_format=png                        --output_filename_format=.\\$file_path\\$file_folder\\$outfile_name                         $file_path/$file_folder/$infile_name')
-#
-#     # Linux:
-#     elif sys.platform == 'linux':
-#         get_ipython().system('./run_ilastik.sh --headless                        --export_source=$mode                        --project=$current_path/Ilastik_Classifiers/$classifier                        --output_format=png                        --output_filename_format=$file_path/$file_folder/$outfile_name                        $file_path/$file_folder/$infile_name')
-#
-#     os.chdir(current_path)
-
-# old pylastik code, check new
-# def run_pylastik(dir1, dir2, out, elem, classifier, ilastik_path = './', mode = '"Simple Segmentation"', out_format='png'):
-#     '''
-#     Windows only. And even on Windows it can fail, depending on your folder structure.
-#     '''
-#     current_path = os.getcwd()
-#     os.chdir(ilastik_path)
-
-#     # macOS:
-#     if sys.platform == 'OS':
-#         get_ipython().system('./run_ilastik.sh --export_source=$mode                           --project=Ilastik_Classifiers/$classifier                           --output_format=png                           --output_filename_format=$dir1/$dir2/$out                            $dir1/$dir2/$elem')
-
-#     # Windows: counting steps to D: from parent directory could fix hardcoding?
-#     elif sys.platform == 'windows':
-#         get_ipython().system(' .\\ilastik.exe --headless                        --export_source=$mode                        --project=Ilastik_Classifiers/$classifier                        --output_format=png                        --output_filename_format=.\\$dir1\\$dir2\\$out                         $dir1/$dir2/$elem')
-
-#     # Linux:
-#     elif sys.platform == 'linux':
-#         get_ipython().system('./run_ilastik.sh --headless                        --export_source=$mode                        --project=$current_path/Ilastik_Classifiers/$classifier                        --output_format=png                        --output_filename_format=$dir1/$dir2/$out                        $dir1/$dir2/$elem')
-
-#     os.chdir(current_path)
-
 
 def sortchildrenby(parent, attr):
     parent[:] = sorted(parent, key=lambda child: child.get(attr))
@@ -398,7 +334,7 @@ def sortchildrenby(parent, attr):
 #
 #     return imglab
 
-def clean_segmentation(file_path, min_size = 6, connectivity = 3): # original size and connectivity were 5 and 2
+def clean_segmentation(file_path, min_size = 12, connectivity = 3): # original size and connectivity were 5 and 2
 
     path_to_images = f'{file_path}/import'
     for file in os.listdir(path_to_images):
@@ -431,7 +367,7 @@ def clean_segmentation(file_path, min_size = 6, connectivity = 3): # original si
 
         return imglab
 
-def clean_array(arr):
+def clean_array(arr, annotation, acr2id, ancestorsById):
     arr_clean = np.copy(arr) # copy to return later, after correction
     allvalues = np.unique(arr) # how many different segmentation values are there?
     if len(allvalues) == 3: # the injection value should be in the middle; this only works for 3 values
@@ -453,25 +389,72 @@ def clean_array(arr):
     return arr_clean
 
 
-def CleanFlatmap(flt_Mat, min_neighbors = 3, radius = 1):
+# def CleanFlatmap(flt_Mat, min_neighbors = 3, radius = 1):
 
-    # Flatmap before - make a tuple to use for the analysis
-    #tuple_pts = CAS.fast_volume2pts(flt_Mat)
-    nzero_pts = np.nonzero(flt_Mat)
-    tuple_pts = np.array([(x,y) for x,y in zip(nzero_pts[0],nzero_pts[1])])
+#     # Flatmap before - make a tuple to use for the analysis
+#     #tuple_pts = CAS.fast_volume2pts(flt_Mat)
+#     nzero_pts = np.nonzero(flt_Mat)
+#     tuple_pts = np.array([(x,y) for x,y in zip(nzero_pts[0],nzero_pts[1])])
 
-    tree = spatial.KDTree(np.array(tuple_pts))
-    neighbors = tree.query_ball_tree(tree, radius)
-    filter_pts = [tuple_pts[idx] for idx,val in enumerate(neighbors) if len(val) >= min_neighbors]
-    print(len(filter_pts),len(tuple_pts))
+#     tree = spatial.KDTree(np.array(tuple_pts))
+#     neighbors = tree.query_ball_tree(tree, radius)
+#     filter_pts = [tuple_pts[idx] for idx,val in enumerate(neighbors) if len(val) >= min_neighbors]
+#     print(len(filter_pts),len(tuple_pts))
 
-    # Flatmap after - make it again a 2D array
-    new_flt_Mat = np.zeros(np.shape(flt_Mat),dtype = np.uint8)
-    for pts in filter_pts:
-        new_flt_Mat[pts[0],pts[1]] = 1
+#     # Flatmap after - make it again a 2D array
+#     new_flt_Mat = np.zeros(np.shape(flt_Mat),dtype = np.uint8)
+#     for pts in filter_pts:
+#         new_flt_Mat[pts[0],pts[1]] = 1
 
-    return new_flt_Mat
+#     return new_flt_Mat
 
+def filter_by_density(arrays, chunk_size=2000, radius=12.0, threshold=0.35):
+    points = arrays[0]
+    print("Filtering by density")
+    points = points.astype(np.uint8)
+    n = len(points)
+    num_neighbors = []
+    for i in range(0, n, chunk_size):
+        # print("Processing new chunk")
+        chunk_end = min(i + chunk_size, n)
+        chunk_points = points[i:chunk_end]
+        chunk_distances = distance.cdist(chunk_points, points, "euclidean")
+        bool_dist = chunk_distances < radius
+        chunk_neighbors = list(np.sum(bool_dist, axis=1))
+        num_neighbors.extend(chunk_neighbors)
+    num_neighbors = np.array(num_neighbors)
+    print(len(num_neighbors))
+    # points = points[:20000]    # print(f"Number of pts: {points.shape[0]}")
+    # dist_mat = distance.cdist(points, points, "euclidean")
+    max_neighbors = np.max(num_neighbors)
+    densities = num_neighbors / max_neighbors
+    print(np.sum(densities > threshold))
+    return [array[densities > threshold] for array in arrays]
+
+def filter_by_area(arrays, areas, resolution=10):
+    points = arrays[0]
+    print("Filtering by area")
+    print(len(points))
+    area_filters = []
+    total_filter = np.ones((len(points),), dtype=bool)
+    for area in areas:
+        area_filters.append(area.contains(points * resolution))
+    total_filter = np.logical_or.reduce(area_filters)
+    print(np.sum(total_filter))
+    return [array[total_filter] for array in arrays]
+
+def clean_target_dictionary(voxel_dict,threshold = 0.20):
+
+    voxel_indices = (
+        np.vstack([np.array(coord) for coord in voxel_dict.keys()])
+    ).astype(float)
+
+    voxel_densities = np.array([coord for coord in voxel_dict.values()])
+
+#     voxel_indices, voxel_densities = filter_by_area([voxel_indices, voxel_densities], cortical_areas) # Not sure about that one yet ...
+    voxel_indices, voxel_densities = filter_by_density([voxel_indices, voxel_densities], threshold=threshold)
+
+    return {tuple(i.astype(int)): d for i,d in zip(voxel_indices,voxel_densities)}
 
 
 # %%
@@ -489,7 +472,7 @@ def get_layer_from_area(area):
     return layer
 
 # %%
-def xml_to_flat(path, file, atlas, outdir):
+def xml_to_flat(path, file, atlas, outdir, qn_points, palette):
     o,u,v = np.array(qn_points(path,file)) * 2.5 # get the data from the xml
     w = int(np.linalg.norm(u)) + 1 # get the 2-norm of vector u, which would be the x coord
     h = int(np.linalg.norm(v)) + 1 # get the 2-norm of vector v (euclidean distance), the y coord
@@ -502,7 +485,7 @@ def xml_to_flat(path, file, atlas, outdir):
             # multiplying each vector by the fraction of its norm and adding the origin value
             # then unpacking the array to get each individual coordinate,
             if 0 <= i < 1140 and 0 <= j < 1320 and 0 <= k < 800: # if within the confines of the array
-                image.putpixel((x,y),palette[atlas[0][1319-int(j)][799-int(k)][1139-int(i)]]) # get the rgb for an id
+                image.putpixel((x,y), palette[atlas[0][1319-int(j)][799-int(k)][1139-int(i)]]) # get the rgb for an id
     image.save(f"{outdir}/{file}.png","PNG")
     IPython.display.display(image) # plot it!
 
@@ -632,7 +615,7 @@ class Allen_Registration:
             ao.ProduceSvg(self.newimg_F, self.in_dir, labels2, labels_extra = labels_extra,
                        savefile = flat_infile + '_YSK', in_color = self.in_color)
 
-    def register_sections(self, experiment_id, extra_plots = False, saveimg = False, revealed = False, style = 'allen'):
+    def register_sections(self, experiment_id, extra_plots = False, saveimg = False, revealed = False, style = 'allen', section_id = None):
 
         in_dir = os.path.join(self.data_dir, self.experiment_id)
         find_mark_file = glob.glob(os.path.join(in_dir,'*_visualign.json'))
@@ -651,8 +634,11 @@ class Allen_Registration:
             return -1
 
         slice_list = np.argsort([vafile["slices"][i]['filename'] for i in range(len(vafile["slices"]))])
+
         for i in slice_list:
             in_slice = vafile["slices"][i]
+
+            if section_id is not None and in_slice['filename'] != section_id: continue
             if "markers" not in in_slice.keys():
                 print("markers field not present: moving to another slice!")
                 continue
@@ -682,6 +668,7 @@ class Allen_Registration:
             triangulation = VAL.triangulate(width,height,in_slice["markers"])
             self.newimg_F = np.zeros(self.in_img.shape,np.uint8)
             allCoords = np.argwhere(self.newimg_F==0)
+
             yx = VAL.forwardtransform_vec(triangulation,allCoords[:,1],allCoords[:,0])
             #print('forward transform completed')
 

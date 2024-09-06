@@ -81,7 +81,7 @@ def forwardtransform_vec(triangulation,x,y):
      xPrime = np.zeros(x.shape,float)
      yPrime = np.zeros(y.shape,float)
      for triangle in triangulation:
-         triangle.inforward_vec(x,y, xPrime,yPrime)
+         triangle.inforward_vec(x, y, xPrime,yPrime)
      return (xPrime,yPrime)
 
 def inv3x3(m):

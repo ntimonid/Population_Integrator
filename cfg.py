@@ -12,7 +12,8 @@ import nibabel
 import json
 import nrrd
 import numpy
-import cv2
+# import cv2
+import functools
 import urllib.parse
 import xml.etree.ElementTree as ET
 import nibabel as nib
@@ -27,14 +28,16 @@ import PIL.Image
 from lxml import etree
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 from collections import OrderedDict
-from IPython.core.debugger import set_trace
+from pdb import set_trace
 from copy import deepcopy
+from joblib import Parallel, delayed
 from itertools import cycle, islice
 from PIL import Image
-from IPython.core.display import display, HTML
-from IPython.display import display, Javascript, clear_output, SVG
+
+# from IPython.core.display import display, HTML
+# from IPython.display import display, Javascript, clear_output, SVG
+# from IPython.display import SVG
 from matplotlib import cm
-from IPython.display import SVG
 import scipy.spatial as spatial
 from skimage import morphology
 

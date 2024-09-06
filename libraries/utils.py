@@ -5,8 +5,8 @@ from allensdk.core.reference_space_cache import ReferenceSpaceCache
 
 def getAtlasData(dataFolder='.', resolution = 25):
     try:
-        [annotation,allenMeta] = nrrd.read('{}/annotation_{}.nrrd'.format(dataFolder,resolution))
-        [avg_template,allenMeta] = nrrd.read('{}/average_template_{}.nrrd'.format(dataFolder,resolution))
+        [annotation, allenMeta] = nrrd.read('{}/annotation_{}.nrrd'.format(dataFolder,resolution))
+        [avg_template, allenMeta] = nrrd.read('{}/average_template_{}.nrrd'.format(dataFolder,resolution))
     except:
         # ID 1 is the adult mouse structure graph
         reference_space_key = 'annotation/ccf_2017'
