@@ -172,7 +172,7 @@ def projectAnnotation(projectionType, annotationVolume, ancestorsById, allowedPa
   return idImage
 
 
-def getAnnotationOverlay(projectionType,lineColor='#000', lineWidth='3',labelColor='#000',labelGlow='#AAA',
+def getAnnotationOverlay(projectionType, lineColor='#000', lineWidth='3',labelColor='#000',labelGlow='#AAA',
                          data_dir = './', annot = 'allen', hemisphere = None):
     if hemisphere is None:
         hemi_str = ''

@@ -47,8 +47,8 @@ class AllenDataStore:
         self.in_res = in_res
 
         if AllenDataStore.annotation is None:
-            self.annotation, self.acr2id, self.id2acr, \
-                self.ancestorsById, self.template, self.EUAL_annotation = getAtlasData(atlas_dir, in_res)
+            self.annotation, self.acr2id, self.id2acr, self.ancestorsById, \
+                self.template, self.EUAL_annotation, self.projected_annotation = getAtlasData(atlas_dir, in_res)
         else:
             self.annotation = AllenDataStore.annotation
             self.template = AllenDataStore.template
@@ -56,10 +56,22 @@ class AllenDataStore:
             self.acr2id = AllenDataStore.acr2id
             self.id2acr = AllenDataStore.id2acr
             self.ancestorsById = AllenDataStore.ancestorsById
+            self.projected_annotation = AllenDataStore.projected_annotation
 
         self.Q_neuron2allen = CAS.convertAllenSpace(fromUnitOrientationOrigin=['um(25)', 'RAS', 'corner'],\
                                                     toUnitOrientationOrigin=[f'um({in_res})', 'PIR', 'corner'])
         self.flt_mapper = FlatMapper(self.flatmapper_dir)
+
+    def give_me_the_allen_annotation(self, input_coordinate):
+        if len(input_coordinate) == 3:
+            x, y, z = input_coordinate
+            return self.id2acr[self.annotation[x, y, z]]
+        elif len(input_coordinate) == 2:
+            x, y = input_coordinate
+            return self.id2acr[self.projected_annotation[x, y]]
+        else:
+            print('Error! The coordinates must have 2 or 3 elements corresponding to flatmap or voxel coordinates!')
+            return -1, -1
 
 
 class ImageRegistration:
@@ -119,6 +131,8 @@ class ImageRegistration:
         section_cords[section_cords < 0] = 0
         section_cords[section_cords[:, 0] >= self.height, 0] = self.height - 1
         section_cords[section_cords[:, 1] >= self.width, 1] = self.width - 1
+
+        section_cords = [list(val) for val in section_cords.T]
 
         return section_cords
 
@@ -246,6 +260,7 @@ class ImageRegistration:
         def_section_cords = np.argwhere(self.def_img == 0)
         section_cords = self.reverse_transform_pixels(def_section_cords)
         self.def_section_cords, self.section_cords = def_section_cords, section_cords
+
         # self.def_img = reverse_transform_image(section_cords, def_section_cords)
         # self.section_cords_reordered, self.def_section_cords_reordered = \
         #     self.reorder_coordinates(section_cords, def_section_cords)
@@ -269,18 +284,21 @@ class ImageRegistration:
 
         try:
             vox_idx = self.section_cords.index(pixel_cord)
-            return self.Voxel_Coo_trs[vox_idx]
+            return self.voxel_cords_trs[vox_idx]
         except:
             print('The requested voxel coordinate is out of bounds. Please select another pixel coordinate')
             return -1
 
-    def give_me_flatmap_points(self, pixel_cord, projectionType='dorsal_flatmap'):
+    def give_me_flatmap_points(self, pixel_cord, projectionType='flatmap_dorsal'):
+
+        if projectionType == 'dorsal_flatmap':
+            projectionType = 'flatmap_dorsal'
 
         self.flt_mapper.init(projectionType)
 
         try:
             point_cloud_voxel_cord = self.give_me_corresponding_voxels(pixel_cord)
-            point_cloud_flat_cord = np.array(self.flt_mapper.projectPoints([point_cloud_voxel_cord]))
+            point_cloud_flat_cord = np.array(self.flt_mapper.projectPoints([point_cloud_voxel_cord]))[0]
             return point_cloud_flat_cord
         except:
             print('Warning! The flatmap could not be computed')
@@ -288,14 +306,14 @@ class ImageRegistration:
 
     def store_densities(self, dims):
 
-        a = self.Voxel_Coo_trs[:,0]>=dims[0]; b = self.Voxel_Coo_trs[:,1]>=dims[1]; c = self.Voxel_Coo_trs[:,2]>=dims[2]
+        a = self.voxel_cords_trs[:,0]>=dims[0]; b = self.voxel_cords_trs[:,1]>=dims[1]; c = self.voxel_cords_trs[:,2]>=dims[2]
         flag_pts = np.logical_or(a,np.logical_or(b,c))
 
-        Voxel_Coo_trs_in_border = self.Voxel_Coo_trs[flag_pts==False,:]
+        voxel_cords_trs_in_border = self.voxel_cords_trs[flag_pts==False,:]
         newCoordsF_in_border = self.newCoordsF_2[flag_pts==False,:]
 
         axon_mask = self.newimg_F[newCoordsF_in_border[:,0], newCoordsF_in_border[:,1]] == 255 # axon num
-        axon_voxels = Voxel_Coo_trs_in_border[axon_mask,:]
+        axon_voxels = voxel_cords_trs_in_border[axon_mask,:]
 
         for voxel_cord in axon_voxels:
             v1,v2,v3 = voxel_cord
