@@ -1,0 +1,6 @@
+nibabel
+opencv-python
+allensdk
+nibabel
+pynrrd
+matplotlib
