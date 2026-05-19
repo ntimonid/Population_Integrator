@@ -8,3 +8,15 @@ across experiments and spatial reference frames.
 Raw Data → Segmentation → Registration → Integration → Analysis -> Visualization
 
 ![Pipeline Overview](Figures/Pipeline_Figure.png)
+
+
+## Motivation
+
+Large-scale neuro-anatomical imaging datasets are difficult to integrate due to:
+- heterogeneous experiments,
+- spatial variability,
+- registration complexity,
+- differing anatomical references.
+
+Population_Integrator aims to provide a reproducible framework
+for integrating these datasets into common analytical representations.
