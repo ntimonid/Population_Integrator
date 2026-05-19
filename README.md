@@ -24,7 +24,5 @@ for integrating these datasets into common analytical representations.
 ## Citation
 
 This workflow has been used in the following work published as:  
-
 Timonidis, Nestor, et al. "Analyzing thalamocortical tract-tracing experiments in a common reference space." Neuroinformatics 22.1 (2024): 23-43.   
-
 https://link.springer.com/article/10.1007/s12021-023-09644-4
