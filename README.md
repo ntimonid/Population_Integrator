@@ -4,3 +4,5 @@ neuro-anatomical imaging data.
 
 Designed for scalable integration of neuroanatomical connectivity data
 across experiments and spatial reference frames.
+
+![Pipeline Overview](Figures/Pipeline_Figure.png)
